@@ -9,19 +9,22 @@ def train(model, opt, loss_fn, epochs, train_loader, test_loader, device):
 
     for epoch in range(epochs):
         tic = time()
-        print('* Epoch %d/%d' % (epoch+1, epochs))
+        print('* Epoch test %d/%d' % (epoch+1, epochs))
 
         avg_loss = 0
         model.train()  # train mode
         for X_batch, Y_batch in train_loader:
+            print("here")
             X_batch = X_batch.to(device)
             Y_batch = Y_batch.to(device)
-
+            print(f'shape x_batch before model: {X_batch.shape}')
+            print(f'shape y_batch: {Y_batch.shape}')
             # set parameter gradients to zero
             opt.zero_grad()
 
             # forward
             Y_pred = model(X_batch)
+            print(f'X_batch shape after model: {Y_pred.shape}')
             loss = loss_fn(Y_batch, Y_pred)  # forward-pass
             loss.backward()  # backward-pass
             opt.step()  # update weights

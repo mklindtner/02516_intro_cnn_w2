@@ -25,7 +25,7 @@ class EncDec(nn.Module):
         self.dec_conv1 = nn.Conv2d(64, 64, 3, padding=0)
         self.upsample2 = nn.Upsample(64)  # 32 -> 64
         self.dec_conv2 = nn.Conv2d(64, 64, 3, padding=0)
-        self.upsample3 = nn.Upsample(128)  # 64 -> 128
+        self.upsample3 = nn.Upsample(555)  # 64 -> 128
         self.dec_conv3 = nn.Conv2d(64, 1, 3, padding=0)
 
     def forward(self, x):
