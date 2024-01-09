@@ -20,6 +20,7 @@ DEFAULT_IMAGE_TRANSFORM = transforms.Compose(
 DEFAULT_LABEL_TRANSFORM = transforms.Compose(
     [
         transforms.ToImage(),
+        transforms.ToDtype(torch.float32),
         transforms.CenterCrop(553),
     ]
 )
