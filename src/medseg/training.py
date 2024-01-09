@@ -28,7 +28,7 @@ def train(model, opt, loss_fn, epochs, train_loader, test_loader, device):
             # forward
             Y_pred = model(X_batch)
             print(f'X_batch shape after model: {Y_pred.shape}')
-            loss = loss_fn(Y_batch, Y_pred)  # forward-pass
+            loss = loss_fn(Y_pred, Y_batch)  # forward-pass
             loss.backward()  # backward-pass
             opt.step()  # update weights
 
