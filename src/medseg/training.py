@@ -1,6 +1,7 @@
 from time import time
 
 
+from IPython.display import clear_output
 import matplotlib.pyplot as plt
 import torch.nn.functional as F
 
