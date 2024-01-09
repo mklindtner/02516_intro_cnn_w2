@@ -2,6 +2,7 @@ from time import time
 
 
 import matplotlib.pyplot as plt
+import torch.nn.functional as F
 
 
 def train(model, opt, loss_fn, epochs, train_loader, test_loader, device):
