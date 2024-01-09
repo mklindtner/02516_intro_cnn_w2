@@ -13,12 +13,14 @@ DEFAULT_BASE_PATH = Path('/dtu/datasets1/02516/PH2_Dataset_images/')
 DEFAULT_IMAGE_TRANSFORM = transforms.Compose(
     [
         transforms.ToImage(),
-        transforms.ToDtype(torch.float32, scale=True)
+        transforms.ToDtype(torch.float32, scale=True),
+        transforms.CenterCrop(553),
     ]
 )
 DEFAULT_LABEL_TRANSFORM = transforms.Compose(
     [
         transforms.ToImage(),
+        transforms.CenterCrop(553),
     ]
 )
 
