@@ -19,12 +19,13 @@ LOG = logging.getLogger()
 
 DEFAULT_EPOCHS = 20
 DEFAULT_BATCH_SIZE = 6
+DEFAULT_CUDA_DEV = 0
 
 
 def execute_training(
     epochs=DEFAULT_EPOCHS,
     batch_size=DEFAULT_BATCH_SIZE,
-    cuda_dev=0,
+    cuda_dev=DEFAULT_CUDA_DEV,
 ):
     torch.cuda.set_device(cuda_dev)
 
@@ -68,9 +69,9 @@ def execute_training(
 def main(argv=sys.argv):
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--epochs', default=DEFAULT_EPOCHS, type=int)
-    parser.add_argument('--batch-size', default=DEFAULT_BATCH_SIZE, type=int)
-    parser.add_argument('--cuda-dev', default=0, type=int)
+    parser.add_argument('--epochs', default=DEFAULT_EPOCHS, type=int, metavar='N', help='Number of epochs (default=%(default)s)')
+    parser.add_argument('--batch-size', default=DEFAULT_BATCH_SIZE, type=int, metavar='N', help='(Mini-)batch size (default=%(default)s)')
+    parser.add_argument('--cuda-dev', default=DEFAULT_CUDA_DEV, type=int, metavar='N', help='CUDA device to use (default=%(default)s)')
     parser.add_argument('--debug', '-v', action='store_true')
     parser.add_argument('--quiet', '-q', action='store_true')
     args = parser.parse_args(argv[1:])
@@ -82,7 +83,7 @@ def main(argv=sys.argv):
     else:
         log_level = logging.INFO
 
-    logging.basicConfig(level=log_level, format='%(message)s')
+    logging.basicConfig(level=log_level, format='%(name)s: %(message)s')
 
     execute_training(
         epochs=args.epochs,
