@@ -1,3 +1,4 @@
+import logging
 from time import time
 
 
@@ -7,27 +8,30 @@ import numpy as np
 import torch.nn.functional as F
 
 
+LOG = logging.getLogger(__name__)
+
+
 def train(model, opt, loss_fn, epochs, train_loader, test_loader, device):
     X_test, Y_test = next(iter(test_loader))
 
     for epoch in range(epochs):
         tic = time()
-        print('* Epoch test %d/%d' % (epoch+1, epochs))
+        LOG.info('* Epoch test %d/%d' % (epoch+1, epochs))
 
         avg_loss = 0
         model.train()  # train mode
         for X_batch, Y_batch in train_loader:
-            print("here")
+            LOG.debug("here")
             X_batch = X_batch.to(device)
             Y_batch = Y_batch.to(device)
-            print(f'shape x_batch before model: {X_batch.shape}')
-            print(f'shape y_batch: {Y_batch.shape}')
+            LOG.debug(f'shape x_batch before model: {X_batch.shape}')
+            LOG.debug(f'shape y_batch: {Y_batch.shape}')
             # set parameter gradients to zero
             opt.zero_grad()
 
             # forward
             Y_pred = model(X_batch)
-            print(f'X_batch shape after model: {Y_pred.shape}')
+            LOG.debug(f'X_batch shape after model: {Y_pred.shape}')
             loss = loss_fn(Y_pred, Y_batch)  # forward-pass
             loss.backward()  # backward-pass
             opt.step()  # update weights
@@ -35,7 +39,7 @@ def train(model, opt, loss_fn, epochs, train_loader, test_loader, device):
             # calculate metrics to show the user
             avg_loss += loss / len(train_loader)
         toc = time()
-        print(' - loss: %f' % avg_loss)
+        LOG.info(' - loss: %f' % avg_loss)
 
         # show intermediate results
         model.eval()  # testing mode
