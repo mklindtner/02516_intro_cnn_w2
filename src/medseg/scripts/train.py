@@ -11,7 +11,7 @@ import torch
 
 from medseg.datasets import PH2Dataset
 from medseg.metrics import bce_loss
-from medseg.models import EncDec
+from medseg.models import EncDec, list_models, get_model
 from medseg.training import train, save_metrics
 
 
@@ -51,6 +51,7 @@ def make_data_loaders(batch_size):
 
 
 def execute_training(
+    model_cls=None,
     epochs=DEFAULT_EPOCHS,
     batch_size=DEFAULT_BATCH_SIZE,
     cuda_dev=DEFAULT_CUDA_DEV,
@@ -65,7 +66,12 @@ def execute_training(
         device = torch.device('cpu')
         LOG.info('Using CPU.')
 
-    model = EncDec().to(device)
+    if model_cls is None:
+        model_cls = EncDec
+    elif isinstance(model_cls, str):
+        model_cls = get_model(model_cls)
+
+    model = model_cls().to(device)
 
     train_loader, val_loader, test_loader = make_data_loaders(batch_size)
 
@@ -89,6 +95,7 @@ def execute_training(
 def main(argv=sys.argv):
     import argparse
     parser = argparse.ArgumentParser()
+    parser.add_argument('--model', help=f'Model to train (options: {", ".join(sorted(list_models()))})')
     parser.add_argument('--epochs', default=DEFAULT_EPOCHS, type=int, metavar='N', help='Number of epochs (default=%(default)s)')
     parser.add_argument('--batch-size', default=DEFAULT_BATCH_SIZE, type=int, metavar='N', help='(Mini-)batch size (default=%(default)s)')
     parser.add_argument('--cuda-dev', default=DEFAULT_CUDA_DEV, type=int, metavar='N', help='CUDA device to use (default=%(default)s)')
@@ -116,6 +123,7 @@ def main(argv=sys.argv):
             )
 
     execute_training(
+        model_cls=args.model,
         epochs=args.epochs,
         batch_size=args.batch_size,
         cuda_dev=args.cuda_dev,
