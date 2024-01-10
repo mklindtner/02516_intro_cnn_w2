@@ -26,23 +26,33 @@ def train(model, opt, loss_fn, epochs, train_loader, test_loader, device):
             Y_batch = Y_batch.to(device)
             LOG.debug(f'shape x_batch before model: {X_batch.shape}')
             LOG.debug(f'shape y_batch: {Y_batch.shape}')
-            # set parameter gradients to zero
             opt.zero_grad()
-
-            # forward
+ 
             Y_pred = model(X_batch)
             LOG.debug(f'X_batch shape after model: {Y_pred.shape}')
-            loss = loss_fn(Y_pred, Y_batch)  # forward-pass
-            loss.backward()  # backward-pass
-            opt.step()  # update weights
+            loss = loss_fn(Y_pred, Y_batch)  
+            loss.backward() 
+            opt.step()  
 
-            # calculate metrics to show the user
             avg_loss += loss / len(train_loader)
+
+        model.eval()  
+        val_loss = 0
+        with torch.no_grad():  
+            for X_val, Y_val in val_loader:
+                X_val = X_val.to(device)
+                Y_val = Y_val.to(device)
+
+                Y_pred_val = model(X_val)
+                loss_val = loss_fn(Y_pred_val, Y_val)
+                val_loss += loss_val.item() * X_val.size(0)
+
+        avg_loss = avg_loss / len(train_loader.dataset)
+        val_loss = val_loss / len(val_loader.dataset)
+
         toc = time()
         LOG.info(' - loss: %f' % avg_loss)
-
-        # show intermediate results
-        model.eval()  # testing mode
+       
         Y_hat = F.sigmoid(model(X_test.to(device))).detach().cpu()
         clear_output(wait=True)
         for k in range(6):
