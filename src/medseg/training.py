@@ -12,8 +12,8 @@ import torch.nn.functional as F
 LOG = logging.getLogger(__name__)
 
 
-def train(model, opt, loss_fn, epochs, train_loader, test_loader, device):
-    X_test, Y_test = next(iter(test_loader))
+def train(model, opt, loss_fn, epochs, train_loader, val_loader, device, resize=None):
+    X_test, Y_test = next(iter(val_loader))
 
     dice_loss_val_list = []
     iou_loss_val_list = [] 
@@ -28,15 +28,17 @@ def train(model, opt, loss_fn, epochs, train_loader, test_loader, device):
         avg_loss = 0
         model.train()  # train mode
         for X_batch, Y_batch in train_loader:
-            LOG.debug("here")
+            # LOG.debug("here")
             X_batch = X_batch.to(device)
             Y_batch = Y_batch.to(device)
-            LOG.debug(f'shape x_batch before model: {X_batch.shape}')
-            LOG.debug(f'shape y_batch: {Y_batch.shape}')
+            # LOG.debug(f'shape x_batch before model: {X_batch.shape}')
+            # LOG.debug(f'shape y_batch: {Y_batch.shape}')
             opt.zero_grad()
  
             Y_pred = model(X_batch)
-            LOG.debug(f'X_batch shape after model: {Y_pred.shape}')
+            if resize is not None:
+                Y_batch = resize(Y_batch)
+            # LOG.debug(f'X_batch shape after model: {Y_pred.shape}')
             loss = loss_fn(Y_pred, Y_batch)  
             loss.backward() 
             opt.step()  
@@ -52,12 +54,14 @@ def train(model, opt, loss_fn, epochs, train_loader, test_loader, device):
                 Y_val = Y_val.to(device)
 
                 Y_pred_val = model(X_val)
+                if resize is not None:
+                    Y_val = resize(Y_val)
                 loss_val = loss_fn(Y_pred_val, Y_val)
                 val_loss += loss_val.item() * X_val.size(0)
 
 
                 Y_pred_binary = torch.round(Y_pred_val)
-
+                LOG.info(f'Y_val: {Y_val.shape}')
                 dice_loss_val += dice_coefficient(Y_pred_binary, Y_val)
                 iou_loss_val += iou_loss(Y_pred_binary, Y_val)
                 acc_val += accuracy(Y_pred_binary, Y_val)

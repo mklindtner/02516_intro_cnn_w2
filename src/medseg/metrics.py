@@ -8,17 +8,15 @@ def bce_loss(y_pred, y_target):
 
 def dice_coefficient(pred, target):
     smooth = 1.
-    pred_flat = pred.view(-1)
-    target_flat = target.view(-1)
+    pred_flat = pred
+    target_flat = target
     intersection = (pred_flat * target_flat).sum()
     return 1 - ((2. * intersection + smooth) / (pred_flat.sum() + target_flat.sum() + smooth))
 
 def iou_loss(pred, target):
     smooth = 1e-6
-    pred_flat = pred.view(-1)
-    target_flat = target.view(-1)
-    intersection = (pred_flat * target_flat).sum()
-    union = pred_flat.sum() + target_flat.sum() - intersection
+    intersection = (pred * target).sum()
+    union = pred.sum() + target.sum() - intersection
     return 1 - ((intersection + smooth) / (union + smooth))
 
 def accuracy(pred, target):
