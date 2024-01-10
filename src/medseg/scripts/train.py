@@ -9,7 +9,7 @@ import torch
 
 
 from medseg.datasets import PH2Dataset
-from medseg.loss import bce_loss
+from medseg.metrics import bce_loss
 from medseg.models import EncDec
 from medseg.training import train
 
