@@ -69,7 +69,6 @@ class UNetSkip(nn.Module):
         # LOG.info(f'e3 before: {e3.shape}')  
 
         e3 = TF.center_crop(e3, 60)
-
         # LOG.info(f'e3 crop: {e3.shape}\t bsample: {bsample.shape}')
         d0_s = torch.concat([bsample, e3], dim=1) #64x64
         d0 = F.relu(self.dec_conv0(d0_s))
@@ -86,11 +85,13 @@ class UNetSkip(nn.Module):
 
         d1 = self.upsample2(d1)
         e1 = TF.center_crop(e1, 228)
+
         d2_s = torch.concat([d1,e1],dim=1)
         d2 = F.relu(self.dec_conv2(d2_s)) 
 
         d2 = self.upsample3(d2)      
         e0 = TF.center_crop(e0, 452)
+        
         d3_s = torch.concat([d2,e0],dim=1)
         d3 = self.dec_conv3(d3_s)        
         return d3
