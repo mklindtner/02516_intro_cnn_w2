@@ -1,6 +1,5 @@
 import logging
 from time import time
-import torch
 
 from IPython.display import clear_output
 import matplotlib.pyplot as plt
@@ -11,8 +10,14 @@ import torch.nn.functional as F
 LOG = logging.getLogger(__name__)
 
 
-def train(model, opt, loss_fn, epochs, train_loader, val_loader, device, Y_resize=None):
-    X_test, Y_test = next(iter(val_loader))
+def train(model, opt, loss_fn, epochs, train_loader, test_loader, device):
+    X_test, Y_test = next(iter(test_loader))
+
+    dice_loss_val_list = []
+    iou_loss_val_list = [] 
+    acc_val_list = []
+    sens_val_list = [] 
+    spec_val_list = []
 
     for epoch in range(epochs):
         tic = time()
@@ -21,17 +26,15 @@ def train(model, opt, loss_fn, epochs, train_loader, val_loader, device, Y_resiz
         avg_loss = 0
         model.train()  # train mode
         for X_batch, Y_batch in train_loader:
+            LOG.debug("here")
             X_batch = X_batch.to(device)
             Y_batch = Y_batch.to(device)
-            # LOG.debug(f'shape x_batch before model: {X_batch.shape}')            
-            # LOG.debug(f'shape y_batch: {Y_batch.shape}')
+            LOG.debug(f'shape x_batch before model: {X_batch.shape}')
+            LOG.debug(f'shape y_batch: {Y_batch.shape}')
             opt.zero_grad()
  
             Y_pred = model(X_batch)
-            if Y_resize is not None:
-                Y_batch = Y_resize(Y_batch)
-            LOG.debug(f'Y_batch shape: {Y_pred.shape}\t Y_pred shape: {Y_pred.shape}')
-            
+            LOG.debug(f'X_batch shape after model: {Y_pred.shape}')
             loss = loss_fn(Y_pred, Y_batch)  
             loss.backward() 
             opt.step()  
@@ -68,6 +71,12 @@ def train(model, opt, loss_fn, epochs, train_loader, val_loader, device, Y_resiz
         sens_val /= num_val_samples
         spec_val /= num_val_samples
 
+        dice_loss_val_list.append(dice_loss_val.item())
+        iou_loss_val_list.append(iou_loss_val.item())
+        acc_val_list.append(acc_val.item())
+        sens_val_list.append(sens_val.item())
+        spec_val_list.append(spec_val.item())
+
         toc = time()
         LOG.info(' - loss: %f' % avg_loss)
        
@@ -85,4 +94,4 @@ def train(model, opt, loss_fn, epochs, train_loader, val_loader, device, Y_resiz
             plt.axis('off')
         plt.suptitle('%d / %d - loss: %f' % (epoch+1, epochs, avg_loss))
         plt.show()
-    return dice_loss_val.item(), iou_loss_val.item(), acc_val.item(), sens_val.item(), spec_val.item()
+    return dice_loss_val_list, iou_loss_val_list, acc_val_list, sens_val_list, spec_val_list
