@@ -11,7 +11,7 @@ import torch.nn.functional as F
 LOG = logging.getLogger(__name__)
 
 
-def train(model, opt, loss_fn, epochs, train_loader, val_loader, device, Y_resize):
+def train(model, opt, loss_fn, epochs, train_loader, val_loader, device, Y_resize=None):
     X_test, Y_test = next(iter(val_loader))
 
     for epoch in range(epochs):
@@ -28,7 +28,8 @@ def train(model, opt, loss_fn, epochs, train_loader, val_loader, device, Y_resiz
             opt.zero_grad()
  
             Y_pred = model(X_batch)
-            Y_batch = Y_resize(Y_batch)
+            if Y_resize is not None:
+                Y_batch = Y_resize(Y_batch)
             LOG.debug(f'Y_batch shape: {Y_pred.shape}\t Y_pred shape: {Y_pred.shape}')
             
             loss = loss_fn(Y_pred, Y_batch)  
