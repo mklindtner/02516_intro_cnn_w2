@@ -79,7 +79,7 @@ def train(model, opt, loss_fn, epochs, train_loader, val_loader, device, resize=
 
 
                 Y_pred_binary = torch.round(Y_pred_val)
-                LOG.info(f'Y_val: {Y_val.shape}')
+                LOG.debug(f'Y_val: {Y_val.shape}')
                 dice_loss_val += dice_coefficient(Y_pred_binary, Y_val)
                 iou_loss_val += iou_loss(Y_pred_binary, Y_val)
                 acc_val += accuracy(Y_pred_binary, Y_val)
