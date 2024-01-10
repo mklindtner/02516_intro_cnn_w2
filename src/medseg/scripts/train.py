@@ -38,11 +38,18 @@ def execute_training(
 
     trainset = PH2Dataset('train')
     testset = PH2Dataset('test')
+    valset = PH2Dataset('validation')
 
     train_loader = torch.utils.data.DataLoader(
         trainset,
         batch_size=batch_size,
         shuffle=True,
+        num_workers=3,
+    )
+    val_loader = torch.utils.data.DataLoader(
+        valset,
+        batch_size=batch_size, 
+        shuffle=False, 
         num_workers=3,
     )
     test_loader = torch.utils.data.DataLoader(
