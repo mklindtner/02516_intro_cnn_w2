@@ -1,12 +1,15 @@
+from collections import defaultdict
 import logging
 from time import time
 
 from IPython.display import clear_output
 import matplotlib.pyplot as plt
 import numpy as np
-from medseg.metrics import dice_coefficient, iou_loss, accuracy, sensitivity, specificity
 import torch
 import torch.nn.functional as F
+
+
+from medseg.metrics import dice_coefficient, iou_loss, accuracy, sensitivity, specificity
 
 
 LOG = logging.getLogger(__name__)
@@ -15,11 +18,7 @@ LOG = logging.getLogger(__name__)
 def train(model, opt, loss_fn, epochs, train_loader, val_loader, device, resize=None):
     X_test, Y_test = next(iter(val_loader))
 
-    dice_loss_val_list = []
-    iou_loss_val_list = [] 
-    acc_val_list = []
-    sens_val_list = [] 
-    spec_val_list = []
+    metrics = defaultdict(list)
 
     for epoch in range(epochs):
         tic = time()
@@ -77,11 +76,11 @@ def train(model, opt, loss_fn, epochs, train_loader, val_loader, device, resize=
         sens_val /= num_val_samples
         spec_val /= num_val_samples
 
-        dice_loss_val_list.append(dice_loss_val.item())
-        iou_loss_val_list.append(iou_loss_val.item())
-        acc_val_list.append(acc_val.item())
-        sens_val_list.append(sens_val.item())
-        spec_val_list.append(spec_val.item())
+        metrics['dice'].append(dice_loss_val.item())
+        metrics['iou'].append(iou_loss_val.item())
+        metrics['acc'].append(acc_val.item())
+        metrics['sens'].append(sens_val.item())
+        metrics['spec'].append(spec_val.item())
 
         toc = time()
         LOG.info(' - loss: %f' % avg_loss)
@@ -100,4 +99,4 @@ def train(model, opt, loss_fn, epochs, train_loader, val_loader, device, resize=
             plt.axis('off')
         plt.suptitle('%d / %d - loss: %f' % (epoch+1, epochs, avg_loss))
         plt.show()
-    return dice_loss_val_list, iou_loss_val_list, acc_val_list, sens_val_list, spec_val_list
+    return metrics
