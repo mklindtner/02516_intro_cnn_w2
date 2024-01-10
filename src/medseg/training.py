@@ -31,7 +31,7 @@ def save_metrics(path, metrics, overwrite=False):
         writer = csv.writer(file)
         names, values = map(list, zip(*metrics.items()))
         writer.writerow(['epoch'] + names)
-        writer.writerows(zip(range(len(values[0])), *values))
+        writer.writerows(zip(range(1, len(values[0])+1), *values))
 
 
 def train(model, opt, loss_fn, epochs, train_loader, val_loader, device, resize=None):
