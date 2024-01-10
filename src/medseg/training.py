@@ -1,6 +1,9 @@
 from collections import defaultdict
+import csv
 import logging
+from pathlib import Path
 from time import time
+
 
 from IPython.display import clear_output
 import matplotlib.pyplot as plt
@@ -15,6 +18,22 @@ from medseg.metrics import dice_coefficient, iou_loss, accuracy, sensitivity, sp
 LOG = logging.getLogger(__name__)
 
 
+def save_metrics(path, metrics, overwrite=False):
+    """Write metrics into a neatly formatted CSV file for later consumption.
+
+    Format:
+
+        epoch,<metric1 name>,<metric2 name>,...
+        1,3.4,3.2,...
+    """
+
+    with Path(path).open('wt' if overwrite else 'xt') as file:
+        writer = csv.writer(file)
+        names, values = map(list, zip(*metrics.items()))
+        writer.writerow(['epoch'] + names)
+        writer.writerows(zip(range(len(values[0])), *values))
+
+
 def train(model, opt, loss_fn, epochs, train_loader, val_loader, device, resize=None):
     X_test, Y_test = next(iter(val_loader))
 
@@ -23,7 +42,7 @@ def train(model, opt, loss_fn, epochs, train_loader, val_loader, device, resize=
     for epoch in range(epochs):
         tic = time()
         LOG.info('* Epoch test %d/%d' % (epoch+1, epochs))
-        
+
         avg_loss = 0
         model.train()  # train mode
         for X_batch, Y_batch in train_loader:
@@ -33,26 +52,26 @@ def train(model, opt, loss_fn, epochs, train_loader, val_loader, device, resize=
             # LOG.debug(f'shape x_batch before model: {X_batch.shape}')
             # LOG.debug(f'shape y_batch: {Y_batch.shape}')
             opt.zero_grad()
- 
+
             Y_pred = model(X_batch)
             if resize is not None:
                 Y_batch = resize(Y_batch)
             # LOG.debug(f'X_batch shape after model: {Y_pred.shape}')
-            loss = loss_fn(Y_pred, Y_batch)  
-            loss.backward() 
-            opt.step()  
+            loss = loss_fn(Y_pred, Y_batch)
+            loss.backward()
+            opt.step()
 
             avg_loss += loss / len(train_loader)
 
-        model.eval()  
+        model.eval()
         val_loss = 0
         dice_loss_val, iou_loss_val, acc_val, sens_val, spec_val = 0, 0, 0, 0, 0
-        with torch.no_grad():  
+        with torch.no_grad():
             for X_val, Y_val in val_loader:
                 X_val = X_val.to(device)
                 Y_val = Y_val.to(device)
 
-                Y_pred_val = F.sigmoid(model(X_val)) 
+                Y_pred_val = F.sigmoid(model(X_val))
                 if resize is not None:
                     Y_val = resize(Y_val)
                 loss_val = loss_fn(Y_pred_val, Y_val)
@@ -84,7 +103,7 @@ def train(model, opt, loss_fn, epochs, train_loader, val_loader, device, resize=
 
         toc = time()
         LOG.info(' - loss: %f' % avg_loss)
-       
+
         Y_hat = F.sigmoid(model(X_test.to(device))).detach().cpu()
         clear_output(wait=True)
         for k in range(6):
