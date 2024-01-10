@@ -58,13 +58,13 @@ def train(model, opt, loss_fn, epochs, train_loader, test_loader, device):
                 spec_val += specificity(Y_pred_binary, Y_val)
 
         # Average out the metrics over the entire validation dataset
-        num_batches = len(val_loader)
-        val_loss /= len(val_loader.dataset)
-        dice_loss_val /= num_batches
-        iou_loss_val /= num_batches
-        acc_val /= num_batches
-        sens_val /= num_batches
-        spec_val /= num_batches
+        num_val_samples = len(val_loader)
+        val_loss /= num_val_samples
+        dice_loss_val /= num_val_samples
+        iou_loss_val /= num_val_samples
+        acc_val /= num_val_samples
+        sens_val /= num_val_samples
+        spec_val /= num_val_samples
 
         toc = time()
         LOG.info(' - loss: %f' % avg_loss)
