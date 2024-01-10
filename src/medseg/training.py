@@ -52,7 +52,7 @@ def train(model, opt, loss_fn, epochs, train_loader, val_loader, device, resize=
                 X_val = X_val.to(device)
                 Y_val = Y_val.to(device)
 
-                Y_pred_val = model(X_val)
+                Y_pred_val = F.sigmoid(model(X_val)) 
                 if resize is not None:
                     Y_val = resize(Y_val)
                 loss_val = loss_fn(Y_pred_val, Y_val)
