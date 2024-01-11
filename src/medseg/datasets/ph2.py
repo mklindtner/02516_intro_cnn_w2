@@ -6,7 +6,7 @@ import torch
 import torchvision.transforms.v2 as transforms
 
 
-DEFAULT_SPLITFILES_PATH = Path(__file__).parent / 'data'
+DEFAULT_SPLITFILES_PATH = Path(__file__).parent / 'data' / 'PH2'
 DEFAULT_BASE_PATH = Path('/dtu/datasets1/02516/PH2_Dataset_images/')
 
 
